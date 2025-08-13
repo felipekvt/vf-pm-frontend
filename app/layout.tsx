@@ -1,15 +1,16 @@
 import "./globals.css";
 import Link from "next/link";
+import HeaderBar from "@/components/HeaderBar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
       <body>
         <div className="min-h-screen grid grid-cols-[260px_1fr]">
-          {/* Sidebar */}
-          <aside className="bg-white border-r border-brand-200 p-4 sticky top-0 h-screen">
+          {/* Sidebar (server ok, sem onClick) */}
+          <aside className="bg-white border-r border-gray-200 p-4 sticky top-0 h-screen">
             <div className="mb-6 flex items-center gap-2">
-              <div className="h-9 w-9 grid place-items-center rounded-xl bg-brand-900 text-white font-bold">V</div>
+              <div className="h-9 w-9 grid place-items-center rounded-xl bg-gray-900 text-white font-bold">V</div>
               <div className="font-semibold">VF PM</div>
             </div>
             <nav className="space-y-1 text-sm">
@@ -20,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <NavItem href="/routes">Rotas de inspeção</NavItem>
               <NavItem href="/inventory">Estoque</NavItem>
               <NavItem href="/reports">Relatórios</NavItem>
-              <div className="mt-6 pt-6 border-t border-brand-200">
+              <div className="mt-6 pt-6 border-t border-gray-200">
                 <NavItem href="/admin">Admin</NavItem>
               </div>
             </nav>
@@ -28,21 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
           {/* Conteúdo */}
           <div className="min-h-screen flex flex-col">
-            <header className="h-[64px] bg-white border-b border-brand-200 flex items-center px-6 justify-between">
-              <div className="font-semibold">Manutenção</div>
-              <div className="flex items-center gap-2">
-                <button className="btn-ghost">Ajuda</button>
-                <button
-                  className="btn-ghost"
-                  onClick={() => {
-                    localStorage.removeItem("vfpm_token");
-                    window.location.href = "/";
-                  }}
-                >
-                  Sair
-                </button>
-              </div>
-            </header>
+            <HeaderBar />  {/* componente client com onClick */}
             <main className="container-page">{children}</main>
           </div>
         </div>
@@ -55,7 +42,7 @@ function NavItem({ href, children }: { href: string; children: React.ReactNode }
   return (
     <Link
       href={href}
-      className="flex items-center gap-2 rounded-xl px-3 py-2 text-brand-700 hover:bg-brand-50 hover:text-brand-900"
+      className="flex items-center gap-2 rounded-xl px-3 py-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900"
     >
       {children}
     </Link>
