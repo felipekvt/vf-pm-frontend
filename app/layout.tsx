@@ -1,6 +1,6 @@
 import "./globals.css";
 import Link from "next/link";
-import HeaderBar from "./components/headerbar";
+import HeaderBar from "../components/headerbar";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
