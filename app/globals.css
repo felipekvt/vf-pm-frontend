@@ -1,10 +1,27 @@
-@tailwind base; @tailwind components; @tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-html, body { height:100%; background: #F9FAFB; color:#0F172A; font-feature-settings:"cv05","cv08"; }
+/* ===== util custom: sombra de card ===== */
+@layer utilities {
+  .shadow-card {
+    /* sombra suave, estilo produto enterprise */
+    box-shadow: 0 8px 30px rgba(2, 6, 23, 0.08);
+  }
+}
+
+/* ===== tokens de UI reutilizáveis ===== */
 .container-page { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.card { @apply rounded-2xl bg-white shadow-card border border-brand-200; }
+
+.card { @apply rounded-2xl bg-white border border-gray-200 shadow-card; }
+
 .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium; }
-.btn-primary { @apply btn bg-accent text-white hover:bg-accent-hover; }
-.btn-ghost { @apply btn bg-transparent border border-brand-200 hover:bg-brand-50; }
-.input { @apply w-full rounded-xl border border-brand-200 px-3 py-2 focus:ring-2 focus:ring-accent/40 outline-none bg-white; }
+.btn-primary { @apply btn bg-blue-600 text-white hover:bg-blue-700; }
+.btn-ghost { @apply btn bg-transparent border border-gray-200 hover:bg-gray-50; }
+
+.input { @apply w-full rounded-xl border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-blue-300 outline-none bg-white; }
+
 .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs border; }
+
+/* base */
+html, body { height: 100%; background: #F9FAFB; color:#0F172A; font-feature-settings:"cv05","cv08"; }
