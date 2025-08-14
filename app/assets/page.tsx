@@ -2,6 +2,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function AssetsPage() {
   const api = process.env.NEXT_PUBLIC_API_BASE!;
@@ -34,11 +35,8 @@ export default function AssetsPage() {
         headers: headers(),
         body: JSON.stringify({ name, location: assetLocation }),
       });
-      setName(''); setAssetLocation('');
-      await load();
-    } catch (err: any) {
-      setMsg(err.message || 'Erro ao criar ativo');
-    }
+      setName(''); setAssetLocation(''); await load();
+    } catch (err: any) { setMsg(err.message || 'Erro ao criar ativo'); }
   }
 
   return (
@@ -69,7 +67,9 @@ export default function AssetsPage() {
               <tbody>
                 {assets.map((a:any)=>(
                   <tr key={a.id} className="border-t border-gray-200 hover:bg-gray-50/60">
-                    <Td className="font-medium">{a.name}</Td>
+                    <Td className="font-medium">
+                      <Link href={`/assets/${a.id}`} className="hover:underline">{a.name}</Link>
+                    </Td>
                     <Td>{a.location ?? '-'}</Td>
                     <Td>{a.createdAt ? new Date(a.createdAt).toLocaleDateString() : '-'}</Td>
                   </tr>
@@ -85,5 +85,5 @@ export default function AssetsPage() {
 
 function Th({ children }: any) { return <th className="text-left font-medium px-3 py-2">{children}</th>; }
 function Td({ children, className="" }: any) { return <td className={`px-3 py-2 ${className}`}>{children}</td>; }
-function SkeletonList() { return <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => (<div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />))}</div>; }
+function SkeletonList() { return <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />)}</div>; }
 function EmptyState({ text }: { text: string }) { return <div className="p-6 text-center text-gray-600">{text}</div>; }
