@@ -1,101 +1,136 @@
-'use client';
-export const dynamic = 'force-dynamic';
+// app/workorders/page.tsx
+"use client";
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useState } from "react";
 
-type WO = { id: string; title: string; status: string; asset?: { name?: string } };
+interface WorkOrder {
+  id: string;
+  title: string;
+  status: "Aberta" | "Em andamento" | "Concluída";
+  priority: "Baixa" | "Média" | "Alta";
+  equipment: string;
+  createdAt: string;
+}
 
 export default function WorkOrdersPage() {
-  const api = process.env.NEXT_PUBLIC_API_BASE!;
-  const [wos, setWos] = useState<WO[]>([]);
-  const [assets, setAssets] = useState<any[]>([]);
-  const [woTitle, setWoTitle] = useState('');
-  const [woAsset, setWoAsset] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [orders, setOrders] = useState<WorkOrder[]>([
+    {
+      id: "WO-001",
+      title: "Troca de rolamento",
+      status: "Aberta",
+      priority: "Alta",
+      equipment: "Bomba de água #3",
+      createdAt: "2025-08-10",
+    },
+    {
+      id: "WO-002",
+      title: "Lubrificação de motor",
+      status: "Em andamento",
+      priority: "Média",
+      equipment: "Esteira principal",
+      createdAt: "2025-08-12",
+    },
+  ]);
 
-  const token = () => (typeof window !== 'undefined' ? localStorage.getItem('vfpm_token') || '' : '');
-  const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${token()}` });
+  const [newOrder, setNewOrder] = useState({
+    title: "",
+    equipment: "",
+    priority: "Média",
+  });
 
-  async function load() {
-    const [A, W] = await Promise.all([
-      fetch(`${api}/api/assets`, { headers: headers() }).then(r => r.json()),
-      fetch(`${api}/api/workorders`, { headers: headers() }).then(r => r.json()),
-    ]);
-    setAssets(A);
-    setWos(W);
-  }
-
-  useEffect(() => {
-    if (!token()) { window.location.href = '/'; return; }
-    load().finally(() => setLoading(false));
-  }, []);
-
-  async function createWO(e: React.FormEvent) {
-    e.preventDefault();
-    setMsg(null);
-    if (!woAsset || !woTitle) { setMsg('Selecione um ativo e preencha o título.'); return; }
-    try {
-      await fetch(`${api}/api/workorders`, {
-        method: 'POST',
-        headers: headers(),
-        body: JSON.stringify({ assetId: woAsset, title: woTitle }),
-      });
-      setWoTitle('');
-      await load();
-    } catch (err: any) { setMsg(err.message || 'Erro ao criar OS'); }
-  }
+  const handleCreateOrder = () => {
+    if (!newOrder.title || !newOrder.equipment) return;
+    const order: WorkOrder = {
+      id: `WO-${orders.length + 1}`.padStart(6, "0"),
+      title: newOrder.title,
+      status: "Aberta",
+      priority: newOrder.priority as WorkOrder["priority"],
+      equipment: newOrder.equipment,
+      createdAt: new Date().toISOString().split("T")[0],
+    };
+    setOrders([...orders, order]);
+    setNewOrder({ title: "", equipment: "", priority: "Média" });
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Ordens de Serviço</h1>
-          <p className="text-sm text-gray-600">Abra, acompanhe e feche suas OS.</p>
-        </div>
+      <h1 className="text-2xl font-bold">Ordens de Serviço</h1>
+
+      {/* Formulário de criação */}
+      <div className="card p-4 space-y-3">
+        <h2 className="text-lg font-semibold">Nova Ordem</h2>
+        <input
+          type="text"
+          placeholder="Título"
+          value={newOrder.title}
+          onChange={(e) => setNewOrder({ ...newOrder, title: e.target.value })}
+          className="input"
+        />
+        <input
+          type="text"
+          placeholder="Equipamento"
+          value={newOrder.equipment}
+          onChange={(e) =>
+            setNewOrder({ ...newOrder, equipment: e.target.value })
+          }
+          className="input"
+        />
+        <select
+          value={newOrder.priority}
+          onChange={(e) =>
+            setNewOrder({ ...newOrder, priority: e.target.value })
+          }
+          className="input"
+        >
+          <option>Baixa</option>
+          <option>Média</option>
+          <option>Alta</option>
+        </select>
+        <button onClick={handleCreateOrder} className="btn-primary">
+          Criar Ordem
+        </button>
       </div>
 
+      {/* Lista de OS */}
       <div className="card p-4">
-        <form className="flex flex-col md:flex-row gap-2" onSubmit={createWO}>
-          <select className="input max-w-xs" value={woAsset} onChange={(e) => setWoAsset(e.target.value)}>
-            <option value="">-- selecione o ativo --</option>
-            {assets.map((a: any) => <option key={a.id} value={a.id}>{a.name}</option>)}
-          </select>
-        <input className="input flex-1" placeholder="Título da OS" value={woTitle} onChange={(e)=>setWoTitle(e.target.value)} />
-          <button className="btn-primary">+ Criar OS</button>
-        </form>
-        {msg && <div className="text-sm text-red-600 mt-2">{msg}</div>}
-      </div>
-
-      <div className="card p-4">
-        {loading ? <SkeletonList /> : wos.length ? (
-          <div className="overflow-hidden rounded-2xl border border-gray-200">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-700">
-                <tr><Th>Título</Th><Th>Ativo</Th><Th>Status</Th></tr>
-              </thead>
-              <tbody>
-                {wos.map((w) => (
-                  <tr key={w.id} className="border-t border-gray-200 hover:bg-gray-50/60">
-                    <Td className="font-medium">
-                      <Link href={`/workorders/${w.id}`} className="hover:underline">{w.title}</Link>
-                    </Td>
-                    <Td>{w.asset?.name ?? '-'}</Td>
-                    <Td><span className={`badge ${badge(w.status)}`}>{w.status}</span></Td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : <EmptyState text="Nenhuma OS cadastrada ainda" />}
+        <h2 className="text-lg font-semibold mb-4">Lista de Ordens</h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b text-left">
+              <th className="py-2">ID</th>
+              <th>Título</th>
+              <th>Equipamento</th>
+              <th>Prioridade</th>
+              <th>Status</th>
+              <th>Criada em</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order.id} className="border-b hover:bg-gray-50">
+                <td className="py-2">{order.id}</td>
+                <td>{order.title}</td>
+                <td>{order.equipment}</td>
+                <td>
+                  <span
+                    className={`badge ${
+                      order.priority === "Alta"
+                        ? "bg-red-100 border-red-400 text-red-600"
+                        : order.priority === "Média"
+                        ? "bg-yellow-100 border-yellow-400 text-yellow-600"
+                        : "bg-green-100 border-green-400 text-green-600"
+                    }`}
+                  >
+                    {order.priority}
+                  </span>
+                </td>
+                <td>{order.status}</td>
+                <td>{order.createdAt}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
 }
-
-function Th({ children }: any) { return <th className="text-left font-medium px-3 py-2">{children}</th>; }
-function Td({ children, className="" }: any) { return <td className={`px-3 py-2 ${className}`}>{children}</td>; }
-function SkeletonList() { return <div className="space-y-2">{Array.from({ length: 5 }).map((_, i) => <div key={i} className="h-10 bg-gray-100 rounded-xl animate-pulse" />)}</div>; }
-function EmptyState({ text }: { text: string }) { return <div className="p-6 text-center text-gray-600">{text}</div>; }
-function badge(s: string) { return s==='DONE'?'border-green-500 text-green-600':s==='IN_PROGRESS'?'border-amber-500 text-amber-600':'border-gray-400 text-gray-700'; }
