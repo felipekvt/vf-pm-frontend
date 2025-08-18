@@ -2,26 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ===== util custom: sombra de card ===== */
+/* ========= Utilities (coisas atômicas/custom) ========= */
 @layer utilities {
+  /* sombra suave para cards */
   .shadow-card {
-    /* sombra suave, estilo produto enterprise */
     box-shadow: 0 8px 30px rgba(2, 6, 23, 0.08);
   }
 }
 
-/* ===== tokens de UI reutilizáveis ===== */
-.container-page { max-width: 1200px; margin: 0 auto; padding: 24px; }
+/* ========= Components (design system) ========= */
+@layer components {
+  /* layout */
+  .container-page { @apply max-w-6xl w-full mx-auto p-6; }
 
-.card { @apply rounded-2xl bg-white border border-gray-200 shadow-card; }
+  /* cards */
+  .card { @apply bg-white border border-gray-200 rounded-2xl shadow-card; }
 
-.btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium; }
-.btn-primary { @apply btn bg-blue-600 text-white hover:bg-blue-700; }
-.btn-ghost { @apply btn bg-transparent border border-gray-200 hover:bg-gray-50; }
+  /* botões */
+  .btn { @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-medium transition; }
+  .btn-primary { @apply btn bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50; }
+  .btn-ghost { @apply btn bg-transparent border border-gray-200 hover:bg-gray-50; }
 
-.input { @apply w-full rounded-xl border border-gray-200 px-3 py-2 focus:ring-2 focus:ring-blue-300 outline-none bg-white; }
+  /* inputs */
+  .input { @apply w-full h-10 rounded-xl border border-gray-300 bg-white px-3 outline-none focus:ring-2 focus:ring-blue-300; }
 
-.badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs border; }
+  /* badges */
+  .badge { @apply inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium; }
+}
 
-/* base */
-html, body { height: 100%; background: #F9FAFB; color:#0F172A; font-feature-settings:"cv05","cv08"; }
+/* ========= Base global ========= */
+html, body {
+  height: 100%;
+  background: #F9FAFB;
+  color: #0F172A;
+  font-feature-settings: "cv05","cv08";
+}
